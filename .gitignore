@@ -1,0 +1,29 @@
+# Visual Studio / MSBuild temporary files
+bin/
+obj/
+*.user
+*.userosscache
+*.sln.docstates
+
+# Visual Studio Virtual File System / Cache
+.vs/
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.shellcheckrc
+
+# WebView2 User Data Folder / Cache
+*.WebView2/
+**/EBWebView/
+App_Data/
+
+# Operating System Files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# User-specific developer files
+*.log
+scratch/

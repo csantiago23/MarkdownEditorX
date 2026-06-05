@@ -1,0 +1,301 @@
+@using Markdig
+@using MarkdownEditorApp.Services
+@inject IFileService FileService
+@inject IWindowService WindowService
+@namespace MarkdownEditorApp.Components
+
+<div class="workspace-container @(isDarkMode ? "dark-theme" : "light-theme")" @onkeydown="HandleKeyDown" tabindex="0">
+    <header class="workspace-header">
+        <div class="header-left">
+            <img src="images/file_icon.png" class="app-logo-img" alt="Markdown Editor X" />
+            <div class="file-menu-container">
+                <button class="menu-trigger-btn @(isFileMenuOpen ? "active" : "")" @onclick="ToggleFileMenu">
+                    File <span class="arrow-down">▾</span>
+                </button>
+                @if (isFileMenuOpen)
+                {
+                    <div class="dropdown-overlay" @onclick="CloseFileMenu"></div>
+                    <ul class="file-dropdown-menu">
+                        <li><button class="dropdown-item" @onclick="NewFileAction"><span class="shortcut">Ctrl+N</span>New File</button></li>
+                        <li><button class="dropdown-item" @onclick="OpenFileAction"><span class="shortcut">Ctrl+O</span>Open File...</button></li>
+                        <li class="menu-divider"></li>
+                        <li><button class="dropdown-item" @onclick="SaveFileAction" disabled="@(!isDirty && FileService.CurrentFilePath != null)"><span class="shortcut">Ctrl+S</span>Save</button></li>
+                        <li><button class="dropdown-item" @onclick="SaveFileAsAction">Save As...</button></li>
+                        <li class="menu-divider"></li>
+                        <li><button class="dropdown-item" @onclick="CloseFileAction">Close File</button></li>
+                        <li><button class="dropdown-item close-editor-item" @onclick="CloseEditorAction">Close Editor</button></li>
+                    </ul>
+                }
+            </div>
+            <div class="header-divider"></div>
+            <span class="file-name">@FileService.CurrentFileName</span>
+            @if (isDirty)
+            {
+                <span class="dirty-dot" title="Unsaved changes">●</span>
+            }
+        </div>
+        <div class="header-right">
+            <button class="theme-toggle-btn" @onclick="ToggleTheme" title="Toggle Theme (Light / Dark)">
+                @if (isDarkMode)
+                {
+                    <span>☀️ Light Mode</span>
+                }
+                else
+                {
+                    <span>🌙 Dark Mode</span>
+                }
+            </button>
+        </div>
+    </header>
+
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="error-banner">
+            <span class="error-message">⚠️ @errorMessage</span>
+            <button class="close-error-btn" @onclick="ClearError">×</button>
+        </div>
+    }
+
+    <div class="workspace-main">
+        <!-- Editor Pane (Left) -->
+        <div class="pane editor-pane">
+            <textarea class="editor-textarea" 
+                      placeholder="Type your markdown here..."
+                      value="@markdownText" 
+                      @oninput="OnMarkdownInput"
+                      @ref="editorTextarea"></textarea>
+        </div>
+
+        <!-- Divider -->
+        <div class="pane-divider"></div>
+
+        <!-- Preview Pane (Right) -->
+        <div class="pane preview-pane">
+            <div class="preview-content">
+                @if (string.IsNullOrWhiteSpace(markdownText))
+                {
+                    <span class="preview-placeholder">Live preview will appear here...</span>
+                }
+                else
+                {
+                    @compiledHtml
+                }
+            </div>
+        </div>
+    </div>
+
+    <footer class="workspace-footer">
+        <div class="footer-left">
+            <span>Lines: <strong>@LineCount</strong></span>
+            <span class="separator">|</span>
+            <span>Words: <strong>@WordCount</strong></span>
+        </div>
+        <div class="footer-right">
+            @if (isDirty)
+            {
+                <span class="status-indicator dirty">● Unsaved Changes</span>
+            }
+            else
+            {
+                <span class="status-indicator clean">✓ Saved</span>
+            }
+        </div>
+    </footer>
+</div>
+
+@code {
+    private string markdownText = "";
+    private string savedText = "";
+    private bool isDirty = false;
+    private string? errorMessage;
+    private ElementReference editorTextarea;
+    private MarkupString compiledHtml;
+    
+    private bool isFileMenuOpen = false;
+    private bool isDarkMode = true;
+    
+    private MarkdownPipeline markdownPipeline = new MarkdownPipelineBuilder()
+        .UseAdvancedExtensions()
+        .Build();
+
+    protected override void OnInitialized()
+    {
+        CompileMarkdown();
+    }
+
+    private void OnMarkdownInput(ChangeEventArgs e)
+    {
+        markdownText = e.Value?.ToString() ?? "";
+        isDirty = markdownText != savedText;
+        CompileMarkdown();
+    }
+
+    private void CompileMarkdown()
+    {
+        if (string.IsNullOrWhiteSpace(markdownText))
+        {
+            compiledHtml = new MarkupString(string.Empty);
+            return;
+        }
+
+        try
+        {
+            var html = Markdown.ToHtml(markdownText, markdownPipeline);
+            compiledHtml = new MarkupString(html);
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Markdown parsing error: {ex.Message}";
+        }
+    }
+
+    private void ToggleFileMenu()
+    {
+        isFileMenuOpen = !isFileMenuOpen;
+    }
+
+    private void CloseFileMenu()
+    {
+        isFileMenuOpen = false;
+    }
+
+    private void ToggleTheme()
+    {
+        isDarkMode = !isDarkMode;
+    }
+
+    private void NewFileAction()
+    {
+        CloseFileMenu();
+        NewFile();
+    }
+
+    private async Task OpenFileAction()
+    {
+        CloseFileMenu();
+        await OpenFileAsync();
+    }
+
+    private async Task SaveFileAction()
+    {
+        CloseFileMenu();
+        await SaveFileAsync();
+    }
+
+    private async Task SaveFileAsAction()
+    {
+        CloseFileMenu();
+        await SaveFileAsAsync();
+    }
+
+    private void CloseFileAction()
+    {
+        CloseFileMenu();
+        NewFile();
+    }
+
+    private void CloseEditorAction()
+    {
+        CloseFileMenu();
+        WindowService.Close();
+    }
+
+    private async Task OpenFileAsync()
+    {
+        try
+        {
+            var content = await FileService.OpenFileAsync();
+            if (content != null)
+            {
+                markdownText = content;
+                savedText = content;
+                isDirty = false;
+                errorMessage = null;
+                CompileMarkdown();
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Failed to open file: {ex.Message}";
+        }
+    }
+
+    private async Task SaveFileAsync()
+    {
+        try
+        {
+            bool success = await FileService.SaveFileAsync(markdownText);
+            if (success)
+            {
+                savedText = markdownText;
+                isDirty = false;
+                errorMessage = null;
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Failed to save file: {ex.Message}";
+        }
+    }
+
+    private async Task SaveFileAsAsync()
+    {
+        try
+        {
+            bool success = await FileService.SaveFileAsAsync(markdownText);
+            if (success)
+            {
+                savedText = markdownText;
+                isDirty = false;
+                errorMessage = null;
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Failed to save file as: {ex.Message}";
+        }
+    }
+
+    private void NewFile()
+    {
+        markdownText = "";
+        savedText = "";
+        isDirty = false;
+        errorMessage = null;
+        FileService.CurrentFilePath = null;
+        CompileMarkdown();
+    }
+
+    private async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (e.CtrlKey)
+        {
+            if (e.Key == "s" || e.Key == "S")
+            {
+                await SaveFileAsync();
+            }
+            else if (e.Key == "o" || e.Key == "O")
+            {
+                await OpenFileAsync();
+            }
+            else if (e.Key == "n" || e.Key == "N")
+            {
+                NewFile();
+            }
+        }
+    }
+
+    private void ClearError()
+    {
+        errorMessage = null;
+    }
+
+    private int WordCount => string.IsNullOrWhiteSpace(markdownText)
+        ? 0
+        : markdownText.Split(new[] { ' ', '\r', '\n', '\t' }, StringSplitOptions.RemoveEmptyEntries)
+                      .Count(w => !string.IsNullOrWhiteSpace(w));
+
+    private int LineCount => string.IsNullOrEmpty(markdownText)
+        ? 1
+        : markdownText.Split('\n').Length;
+}
