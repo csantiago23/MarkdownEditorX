@@ -1,6 +1,6 @@
 [Setup]
 AppName=Markdown Editor X
-AppVersion=1.0.1
+AppVersion=1.0.2
 AppPublisher=Markdown Editor X Team
 DefaultDirName={autopf}\Markdown Editor X
 DefaultGroupName=Markdown Editor X
@@ -20,7 +20,7 @@ ChangesAssociations=yes
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "bin\Release\net8.0-windows10.0.19041.0\win-x64\publish\*"; DestDir: "{app}"; Flags: recursesubdirs createallsubdirs
+Source: "bin\Release\net8.0-windows10.0.19041.0\win10-x64\publish\*"; DestDir: "{app}"; Flags: recursesubdirs createallsubdirs
 
 [Icons]
 Name: "{group}\Markdown Editor X"; Filename: "{app}\MarkdownEditorApp.exe"
