@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.DependencyInjection;
 #if WINDOWS
 using Microsoft.Maui.LifecycleEvents;
 #endif
@@ -65,6 +66,43 @@ public static class MauiProgram
 		builder.Logging.AddDebug();
 #endif
 
-		return builder.Build();
+		var app = builder.Build();
+
+		var fileService = app.Services.GetRequiredService<MarkdownEditorApp.Services.IFileService>();
+		string? filePathToOpen = null;
+
+#if WINDOWS
+		try
+		{
+			var activatedArgs = Microsoft.Windows.AppLifecycle.AppInstance.GetCurrent().GetActivatedEventArgs();
+			if (activatedArgs != null && activatedArgs.Kind == Microsoft.Windows.AppLifecycle.ExtendedActivationKind.File)
+			{
+				if (activatedArgs.Data is Windows.ApplicationModel.Activation.IFileActivatedEventArgs fileArgs && fileArgs.Files.Count > 0)
+				{
+					filePathToOpen = fileArgs.Files[0].Path;
+				}
+			}
+		}
+		catch (System.Exception ex)
+		{
+			System.Diagnostics.Debug.WriteLine($"Error retrieving activation args: {ex.Message}");
+		}
+#endif
+
+		if (string.IsNullOrEmpty(filePathToOpen))
+		{
+			var args = System.Environment.GetCommandLineArgs();
+			if (args.Length > 1 && System.IO.File.Exists(args[1]))
+			{
+				filePathToOpen = args[1];
+			}
+		}
+
+		if (!string.IsNullOrEmpty(filePathToOpen))
+		{
+			fileService.CurrentFilePath = filePathToOpen;
+		}
+
+		return app;
 	}
 }

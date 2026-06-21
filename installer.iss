@@ -1,6 +1,6 @@
 [Setup]
 AppName=Markdown Editor X
-AppVersion=1.0
+AppVersion=1.0.1
 AppPublisher=Markdown Editor X Team
 DefaultDirName={autopf}\Markdown Editor X
 DefaultGroupName=Markdown Editor X
@@ -14,6 +14,7 @@ ArchitecturesAllowed=x64
 ArchitecturesInstallIn64BitMode=x64
 PrivilegesRequired=admin
 DisableWelcomePage=no
+ChangesAssociations=yes
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
@@ -27,3 +28,15 @@ Name: "{autodesktop}\Markdown Editor X"; Filename: "{app}\MarkdownEditorApp.exe"
 
 [Run]
 Filename: "{app}\MarkdownEditorApp.exe"; Description: "{cm:LaunchProgram,Markdown Editor X}"; Flags: nowait postinstall skipifsilent
+
+[Registry]
+Root: HKA; Subkey: "Software\Classes\.md\OpenWithProgids"; ValueType: string; ValueName: "MarkdownEditorX.AssocFile.md"; ValueData: ""; Flags: uninsdeletevalue
+Root: HKA; Subkey: "Software\Classes\MarkdownEditorX.AssocFile.md"; ValueType: string; ValueName: ""; ValueData: "Markdown Document"; Flags: uninsdeletekey
+Root: HKA; Subkey: "Software\Classes\MarkdownEditorX.AssocFile.md\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\appicon.ico"
+Root: HKA; Subkey: "Software\Classes\MarkdownEditorX.AssocFile.md\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\MarkdownEditorApp.exe"" ""%1"""
+
+Root: HKA; Subkey: "Software\Classes\.txt\OpenWithProgids"; ValueType: string; ValueName: "MarkdownEditorX.AssocFile.txt"; ValueData: ""; Flags: uninsdeletevalue
+Root: HKA; Subkey: "Software\Classes\MarkdownEditorX.AssocFile.txt"; ValueType: string; ValueName: ""; ValueData: "Text Document"; Flags: uninsdeletekey
+Root: HKA; Subkey: "Software\Classes\MarkdownEditorX.AssocFile.txt\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\appicon.ico"
+Root: HKA; Subkey: "Software\Classes\MarkdownEditorX.AssocFile.txt\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\MarkdownEditorApp.exe"" ""%1"""
+

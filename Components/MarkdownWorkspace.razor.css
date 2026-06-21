@@ -509,3 +509,305 @@
 ::deep tr:nth-child(even) {
     background-color: var(--table-even-bg);
 }
+
+/* Help Section & Modal Styles */
+
+/* Help button in header */
+.help-toggle-btn {
+    background-color: var(--btn-bg);
+    color: var(--btn-text);
+    border: 1px solid var(--btn-border);
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.help-toggle-btn:hover {
+    background-color: var(--btn-hover-bg);
+    border-color: var(--btn-hover-border);
+}
+
+.help-toggle-btn:active {
+    transform: scale(0.97);
+}
+
+/* Modal Overlay */
+.help-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    animation: modalFadeIn 0.2s ease-out;
+}
+
+@keyframes modalFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Modal Content Container */
+.help-modal-content {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    width: 80%;
+    max-width: 900px;
+    height: 80%;
+    max-height: 700px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    animation: modalScaleIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalScaleIn {
+    from { transform: scale(0.95) translateY(10px); }
+    to { transform: scale(1) translateY(0); }
+}
+
+/* Modal Header */
+.help-modal-header {
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--bg-secondary);
+}
+
+.header-title-container {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.help-modal-header h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-headers);
+}
+
+.copy-feedback-toast {
+    background-color: #059669; /* Emerald-600 */
+    color: #ffffff;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    animation: bounceIn 0.2s ease;
+}
+
+@keyframes bounceIn {
+    0% { transform: scale(0.8); opacity: 0; }
+    70% { transform: scale(1.05); }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.help-modal-close-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 1.75rem;
+    cursor: pointer;
+    transition: color 0.15s ease;
+    line-height: 1;
+}
+
+.help-modal-close-btn:hover {
+    color: #ef4444; /* Red-500 */
+}
+
+/* Navigation Tabs */
+.help-modal-tabs {
+    display: flex;
+    background-color: var(--bg-primary);
+    border-bottom: 1px solid var(--border-color);
+    padding: 0 16px;
+}
+
+.help-tab-btn {
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--text-secondary);
+    padding: 12px 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.help-tab-btn:hover {
+    color: var(--text-primary);
+}
+
+.help-tab-btn.active {
+    color: #38bdf8; /* Sky-400 */
+    border-bottom-color: #38bdf8;
+}
+
+/* Modal Body */
+.help-modal-body {
+    flex: 1;
+    overflow-y: auto;
+    background-color: var(--bg-primary);
+    padding: 24px;
+}
+
+/* Scrollbar for modal body */
+.help-modal-body::-webkit-scrollbar {
+    width: 8px;
+}
+.help-modal-body::-webkit-scrollbar-track {
+    background: var(--bg-primary);
+}
+.help-modal-body::-webkit-scrollbar-thumb {
+    background: var(--btn-bg);
+    border-radius: 4px;
+}
+
+/* Cheat Sheet Tab Styles */
+.cheatsheet-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.cheatsheet-intro {
+    margin: 0 0 8px 0;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.cheatsheet-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 16px;
+}
+
+.cheatsheet-card {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 14px;
+    transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.cheatsheet-card:hover {
+    border-color: var(--btn-hover-border);
+    transform: translateY(-2px);
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.card-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-headers);
+}
+
+.copy-btn {
+    background-color: var(--btn-bg);
+    color: var(--btn-text);
+    border: 1px solid var(--btn-border);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.copy-btn:hover {
+    background-color: var(--btn-hover-bg);
+    border-color: var(--btn-hover-border);
+}
+
+.cheatsheet-card pre {
+    margin: 0;
+    padding: 8px 12px;
+    background-color: var(--pre-bg);
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    overflow-x: auto;
+}
+
+.cheatsheet-card code {
+    font-family: 'Consolas', 'Fira Code', monospace;
+    font-size: 0.78rem;
+    color: var(--text-primary);
+}
+
+/* User Guide Tab Styles */
+.userguide-container {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.pdf-viewer-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    padding: 10px 16px;
+    border-radius: 8px;
+}
+
+.pdf-title {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-headers);
+}
+
+.action-btn {
+    background-color: #0284c7; /* Sky-600 */
+    color: #ffffff;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.action-btn:hover {
+    background-color: #0369a1; /* Sky-700 */
+}
+
+.pdf-frame-wrapper {
+    flex: 1;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+    height: 430px;
+    background-color: #525659; /* Default PDF viewer dark background */
+}
+
+.pdf-iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+}

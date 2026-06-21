@@ -1,5 +1,7 @@
 @using Markdig
 @using MarkdownEditorApp.Services
+@using Microsoft.Maui.ApplicationModel.DataTransfer
+@using Microsoft.Maui.Storage
 @inject IFileService FileService
 @inject IWindowService WindowService
 @namespace MarkdownEditorApp.Components
@@ -35,6 +37,9 @@
             }
         </div>
         <div class="header-right">
+            <button class="help-toggle-btn" @onclick="OpenHelpModal" title="Help & Guides">
+                ❓ Help
+            </button>
             <button class="theme-toggle-btn" @onclick="ToggleTheme" title="Toggle Theme (Light / Dark)">
                 @if (isDarkMode)
                 {
@@ -101,6 +106,133 @@
             }
         </div>
     </footer>
+
+    @if (isHelpModalOpen)
+    {
+        <div class="help-modal-overlay" @onclick="CloseHelpModal">
+            <div class="help-modal-content" @onclick:stopPropagation>
+                <header class="help-modal-header">
+                    <div class="header-title-container">
+                        <h3>Help & Resources</h3>
+                        @if (!string.IsNullOrEmpty(copyFeedbackMessage))
+                        {
+                            <span class="copy-feedback-toast">✓ @copyFeedbackMessage</span>
+                        }
+                    </div>
+                    <button class="help-modal-close-btn" @onclick="CloseHelpModal" title="Close Help">×</button>
+                </header>
+                
+                <nav class="help-modal-tabs">
+                    <button class="help-tab-btn @(activeHelpTab == "cheatsheet" ? "active" : "")" @onclick='() => SetHelpTab("cheatsheet")'>
+                        📝 Markdown Cheat Sheet
+                    </button>
+                    <button class="help-tab-btn @(activeHelpTab == "userguide" ? "active" : "")" @onclick='() => SetHelpTab("userguide")'>
+                        📘 App User Guide
+                    </button>
+                </nav>
+                
+                <div class="help-modal-body">
+                    @if (activeHelpTab == "cheatsheet")
+                    {
+                        <div class="cheatsheet-container">
+                            <p class="cheatsheet-intro">Click any card's copy button to copy the Markdown syntax to your clipboard.</p>
+                            <div class="cheatsheet-grid">
+                                <div class="cheatsheet-card">
+                                    <div class="card-header">
+                                        <span class="card-title">Headings</span>
+                                        <button class="copy-btn" @onclick='() => CopyToClipboard("# Heading 1\n## Heading 2\n### Heading 3")'>Copy</button>
+                                    </div>
+                                    <pre><code># Heading 1
+## Heading 2
+### Heading 3</code></pre>
+                                </div>
+                                <div class="cheatsheet-card">
+                                    <div class="card-header">
+                                        <span class="card-title">Emphasis</span>
+                                        <button class="copy-btn" @onclick='() => CopyToClipboard("**bold text**\n*italic text*\n***bold & italic***")'>Copy</button>
+                                    </div>
+                                    <pre><code>**bold text**
+*italic text*
+***bold & italic***</code></pre>
+                                </div>
+                                <div class="cheatsheet-card">
+                                    <div class="card-header">
+                                        <span class="card-title">Lists</span>
+                                        <button class="copy-btn" @onclick='() => CopyToClipboard("- Unordered Item 1\n- Unordered Item 2\n\n1. Ordered Item 1\n2. Ordered Item 2")'>Copy</button>
+                                    </div>
+                                    <pre><code>- Unordered Item 1
+- Unordered Item 2
+
+1. Ordered Item 1
+2. Ordered Item 2</code></pre>
+                                </div>
+                                <div class="cheatsheet-card">
+                                    <div class="card-header">
+                                        <span class="card-title">Links & Images</span>
+                                        <button class="copy-btn" @onclick='() => CopyToClipboard("[Link Text](https://example.com)\n![Image Alt](images/file_icon.png)")'>Copy</button>
+                                    </div>
+                                    <pre><code>[Link Text](https://example.com)
+![Image Alt](path/image.png)</code></pre>
+                                </div>
+                                <div class="cheatsheet-card">
+                                    <div class="card-header">
+                                        <span class="card-title">Code Blocks</span>
+                                        <button class="copy-btn" @onclick='() => CopyToClipboard("`inline code`\n\n```csharp\n// Code block\nvar x = 10;\n```")'>Copy</button>
+                                    </div>
+                                    <pre><code>`inline code`
+
+```csharp
+// Code block
+var x = 10;
+```</code></pre>
+                                </div>
+                                <div class="cheatsheet-card">
+                                    <div class="card-header">
+                                        <span class="card-title">Blockquotes & Dividers</span>
+                                        <button class="copy-btn" @onclick='() => CopyToClipboard("> This is a blockquote.\n\n---")'>Copy</button>
+                                    </div>
+                                    <pre><code>> This is a blockquote.
+
+---</code></pre>
+                                </div>
+                                <div class="cheatsheet-card">
+                                    <div class="card-header">
+                                        <span class="card-title">Tables</span>
+                                        <button class="copy-btn" @onclick='() => CopyToClipboard("| Header 1 | Header 2 |\n| -------- | -------- |\n| Cell 1   | Cell 2   |")'>Copy</button>
+                                    </div>
+                                    <pre><code>| Header 1 | Header 2 |
+| -------- | -------- |
+| Cell 1   | Cell 2   |</code></pre>
+                                </div>
+                                <div class="cheatsheet-card">
+                                    <div class="card-header">
+                                        <span class="card-title">Task Lists</span>
+                                        <button class="copy-btn" @onclick='() => CopyToClipboard("- [x] Done task\n- [ ] Todo task")'>Copy</button>
+                                    </div>
+                                    <pre><code>- [x] Done task
+- [ ] Todo task</code></pre>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    else if (activeHelpTab == "userguide")
+                    {
+                        <div class="userguide-container">
+                            <div class="pdf-viewer-header">
+                                <span class="pdf-title">📄 App User Guide</span>
+                                <button class="action-btn open-pdf-btn" @onclick="OpenGuideInSystemBrowser">
+                                    📂 Open Guide in Browser
+                                </button>
+                            </div>
+                            <div class="pdf-frame-wrapper">
+                                <iframe src="user_guide.html" class="pdf-iframe"></iframe>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
 </div>
 
 @code {
@@ -111,6 +243,10 @@
     private ElementReference editorTextarea;
     private MarkupString compiledHtml;
     
+    private bool isHelpModalOpen = false;
+    private string activeHelpTab = "cheatsheet";
+    private string? copyFeedbackMessage;
+    
     private bool isFileMenuOpen = false;
     private bool isDarkMode = true;
     
@@ -118,9 +254,33 @@
         .UseAdvancedExtensions()
         .Build();
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         CompileMarkdown();
+        if (!string.IsNullOrEmpty(FileService.CurrentFilePath))
+        {
+            await LoadInitialFileAsync();
+        }
+    }
+
+    private async Task LoadInitialFileAsync()
+    {
+        try
+        {
+            if (System.IO.File.Exists(FileService.CurrentFilePath))
+            {
+                var content = await System.IO.File.ReadAllTextAsync(FileService.CurrentFilePath);
+                markdownText = content;
+                savedText = content;
+                isDirty = false;
+                errorMessage = null;
+                CompileMarkdown();
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Failed to load initial file: {ex.Message}";
+        }
     }
 
     private void OnMarkdownInput(ChangeEventArgs e)
@@ -288,6 +448,64 @@
     private void ClearError()
     {
         errorMessage = null;
+    }
+
+    private void OpenHelpModal()
+    {
+        isHelpModalOpen = true;
+        activeHelpTab = "cheatsheet";
+    }
+
+    private void CloseHelpModal()
+    {
+        isHelpModalOpen = false;
+    }
+
+    private void SetHelpTab(string tab)
+    {
+        activeHelpTab = tab;
+    }
+
+    private async Task CopyToClipboard(string text)
+    {
+        try
+        {
+            await Clipboard.Default.SetTextAsync(text);
+            copyFeedbackMessage = "Copied to clipboard!";
+            StateHasChanged();
+            await Task.Delay(1500);
+            copyFeedbackMessage = null;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Failed to copy to clipboard: {ex.Message}";
+        }
+    }
+
+    private async Task OpenGuideInSystemBrowser()
+    {
+        try
+        {
+            var basePath = AppContext.BaseDirectory;
+            var htmlPath = Path.Combine(basePath, "wwwroot", "user_guide.html");
+            
+            if (File.Exists(htmlPath))
+            {
+                await Launcher.Default.OpenAsync(new OpenFileRequest
+                {
+                    File = new ReadOnlyFile(htmlPath)
+                });
+            }
+            else
+            {
+                errorMessage = "Guide HTML file could not be found locally.";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Failed to open guide: {ex.Message}";
+        }
     }
 
     private int WordCount => string.IsNullOrWhiteSpace(markdownText)
