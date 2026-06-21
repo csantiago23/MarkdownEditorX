@@ -1,6 +1,6 @@
 [Setup]
 AppName=Markdown Editor X
-AppVersion=1.0.2
+AppVersion=1.0.3
 AppPublisher=Markdown Editor X Team
 DefaultDirName={autopf}\Markdown Editor X
 DefaultGroupName=Markdown Editor X
